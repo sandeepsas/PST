@@ -5,15 +5,9 @@
  */
 package StartHere;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.io.*;
+
+import java.util.*;
 import java.util.logging.Logger;
 
 import org.jgrapht.alg.DijkstraShortestPath;
@@ -22,13 +16,8 @@ import org.jgrapht.graph.DefaultWeightedEdge;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDateTime;
 
-import Graph.GraphNode;
-import Graph.Pair;
-import Graph.ShareabilityGraph;
-import Trip.Constants;
-import Trip.KdTree;
-import Trip.TaxiTrip;
-import Trip.TripLoader;
+import Graph.*;
+import Trip.*;
 
 public class CheckTripMergeable {
 	public static final Logger LOGGER = Logger.getLogger(CheckTripMergeable.class.getName());
