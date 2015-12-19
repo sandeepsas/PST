@@ -25,6 +25,7 @@ import org.joda.time.DateTime;
 
 import Graph.GraphNode;
 import Graph.Pair;
+import StartHere.RUNSETTINGS;
 import Trip.TaxiTrip;
 
 public class TripLoader {
@@ -52,7 +53,7 @@ public class TripLoader {
 		//Constructor - Loads Intersection as HashMaps
 		intrMap = new HashMap<String, List<Pair<String,String>>>();
 
-		BufferedReader bfi = new BufferedReader(new FileReader("ObjectWarehouse/WalkableIntersectionMap/UnIntrMap_v1_5min_fil_intr.csv"));
+		BufferedReader bfi = new BufferedReader(new FileReader(RUNSETTINGS.IntersectionMapFile));
 		String si = new String();
 
 		while((si=bfi.readLine())!=null &&
@@ -70,7 +71,7 @@ public class TripLoader {
 		//Load Vertex Map
 		vertexMap = new HashMap<String, Pair<Double,Double>>();
 		//bf = new BufferedReader(new FileReader("ObjectWarehouse/VertexMap_v1.csv"));
-		BufferedReader bf = new BufferedReader(new FileReader("ObjectWarehouse/IntersectionVertexMap/UnIntrMap_v1_5min_fil_intr_IMAP1.csv"));
+		BufferedReader bf = new BufferedReader(new FileReader(RUNSETTINGS.VertexMapFile));
 		String s = new String();
 		while((s=bf.readLine())!=null &&
 				(s.length()!=0) ){
@@ -100,7 +101,7 @@ public class TripLoader {
 		bf.close();
 		// Load the Graph
 		//Construct Graph
-		ObjectInputStream oos_graph_read = new ObjectInputStream(new FileInputStream("ObjectWarehouse/GraphObjects/SpeedLimtGraphHashed_v2.obj"));
+		ObjectInputStream oos_graph_read = new ObjectInputStream(new FileInputStream(RUNSETTINGS.GraphObjectFile));
 		gr_t = new  DefaultDirectedWeightedGraph <GraphNode,DefaultWeightedEdge>(DefaultWeightedEdge.class);
 		gr_t =  (DefaultDirectedWeightedGraph<GraphNode, DefaultWeightedEdge>) oos_graph_read.readObject();
 		oos_graph_read.close();
