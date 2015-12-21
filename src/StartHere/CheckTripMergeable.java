@@ -52,11 +52,11 @@ public class CheckTripMergeable {
 			TaxiTrip trip_A = dispatchList.get(j).getL();
 			TaxiTrip trip_B = dispatchList.get(j).getR();
 			//CheckTripMergeable.LOGGER.info("Processing "+trip_A+"and "+trip_B);  
-			if(sG.euclideanCheckSucess(trip_A,trip_B)) {
+		//	if(sG.euclideanCheckSucess(trip_A,trip_B,tripLoader)) {
 				if(sG.checkMergeable(trip_A,trip_B,tripLoader,merge_trips_writer)){
 					mergeable_trips.add(new Pair<TaxiTrip,TaxiTrip>(trip_A,trip_B));
 				}
-			}
+		//	}
 		}
 		CheckTripMergeable.LOGGER.info("Summary Printing Started");  
 		//Print Results
@@ -109,7 +109,7 @@ public class CheckTripMergeable {
 						split_readline[14]);
 
 				int paasenger_count = trip.getPassengerCount();
-				if(paasenger_count<=4)
+				if(paasenger_count<4)
 					trips.add(trip);
 			}
 

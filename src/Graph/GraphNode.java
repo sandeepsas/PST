@@ -3,6 +3,8 @@ package Graph;
 import java.io.Serializable;
 import java.util.Set;
 
+import Trip.KdTree;
+
 /**
  * 
  * @author Sandeep Sasidharan
@@ -27,8 +29,10 @@ public class GraphNode implements Serializable{
 		this.lat = 0.0;
 		this.id = 0;
 	}
+	public KdTree.XYZPoint toXYZPoint(){
+		return new KdTree.XYZPoint(""+this.id,this.lat,this.lon,0);
+	}
 	
-
 	public GraphNode(double lat, double lon, long id) {
 		this.lon = lon;
 		this.lat = lat;

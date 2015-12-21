@@ -74,11 +74,11 @@ public class Plot2 {
 				TaxiTrip trip_A = dispatchList.get(j).getL();
 				TaxiTrip trip_B = dispatchList.get(j).getR();
 				//Plot2.LOGGER.info("Processing "+trip_A+"and "+trip_B);  
-				if(sG.euclideanCheckSucess(trip_A,trip_B)) {
+				//if(sG.euclideanCheckSucess(trip_A,trip_B,tripLoader)) {
 					if(sG.checkMergeable(trip_A,trip_B,tripLoader,merge_trips_writer)){
 						mergeable_trips.add(new Pair<TaxiTrip,TaxiTrip>(trip_A,trip_B));
 					}
-				}
+				//}
 			}
 			Plot2.LOGGER.info("Summary Printing Started");  
 			//Print Results

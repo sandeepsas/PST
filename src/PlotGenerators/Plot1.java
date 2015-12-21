@@ -68,11 +68,11 @@ public class Plot1 {
 							//dispatchList.add(new Pair<TaxiTrip, TaxiTrip>(trip_A,trip_B));
 							Plot1.LOGGER.info("Processing "+trip_A+"and "+trip_B);  
 
-							if(sG.euclideanCheckSucess(trip_A,trip_B)) {
+							//if(sG.euclideanCheckSucess(trip_A,trip_B,tripLoader)) {
 								if(sG.checkMergeable(trip_A,trip_B,tripLoader,merge_trips_writer)){
 									mergeable_trips.add(new Pair<TaxiTrip,TaxiTrip>(trip_A,trip_B));
 								}
-							}
+							//}
 						}
 					}
 				}

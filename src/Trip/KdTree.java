@@ -15,6 +15,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
+import Graph.GraphNode;
+
 /**
  * A k-d tree (short for k-dimensional tree) is a space-partitioning data
  * structure for organizing points in a k-dimensional space. k-d trees are a
@@ -655,6 +657,10 @@ public class KdTree<T extends KdTree.XYZPoint> {
 			builder.append(z);
 			builder.append(")");
 			return builder.toString();
+		}
+		
+		public GraphNode toGraphNode() {
+			return new GraphNode(this.x,this.y,Long.parseLong(this.linearID));
 		}
 	}
 	protected static class TreePrinter {

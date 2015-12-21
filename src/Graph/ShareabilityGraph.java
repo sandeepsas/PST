@@ -34,11 +34,13 @@ import Trip.TripLoader;
 
 public class ShareabilityGraph {
 	List<DefaultWeightedEdge> shareable_graph_edges;
+	List<Pair<TaxiTrip,TaxiTrip>> unique_set;
 
 	MUndirectedGraph uNshareGraph;
 
 	public ShareabilityGraph() {
 		shareable_graph_edges = new ArrayList<DefaultWeightedEdge>();
+		new ArrayList <Pair<TaxiTrip,TaxiTrip>>();
 		uNshareGraph = new MUndirectedGraph();
 	}
 
@@ -46,9 +48,7 @@ public class ShareabilityGraph {
 			PrintWriter merge_trips_writer) throws ClassNotFoundException, IOException {
 		// TODO Auto-generated method stub
 		boolean result = false;
-		// Initializations
-		double PERCENTAGE_TRIP_DELAY = 0.1;
-		double MAX_WALK_TIME = 5; // The Graph is populated for 5 mins
+
 		// Initialize Drop-offs
 
 		// TripDataHandler tHandler = new TripDataHandler();
@@ -66,6 +66,26 @@ public class ShareabilityGraph {
 		// Travel Time Correction Ratio Calculation
 		// travel time to dest of A from LGA from Trip
 		KdTree.XYZPoint OSM_dest_B = tripLoader.getNNNode(dest_B);
+		
+		////////////////////////////////////////////////////////////////////////////////////////////////
+		
+		//*****************************EUCLIDEAN TEST *************************************************
+		// TODO Auto-generated method stub
+		//Calculate by Distance/speed method(60mph) travel time in mins. So 60 cancels.
+		
+/*		float time_from_H_to_A = (float) (FilterFns.inLaGDist(trip_A.getDropOffLat(), trip_A.getDropOffLon()));
+		float time_from_A_to_B = (float) (FilterFns.distFrom(trip_A.getDropOffLat(),
+				trip_A.getDropOffLon(),trip_B.getDropOffLat(), trip_B.getDropOffLon()));
+		//float shortest_time_from_H_to_B = (float) (FilterFns.inLaGDist(trip_B.getDropOffLat(), trip_B.getDropOffLon()));
+		float shortest_time_from_H_to_B = Float.parseFloat(dtMap.get(OSM_dest_B.linearID.trim()));
+		float lhs_EU = (float) (time_from_H_to_A + time_from_A_to_B -(2*RUNSETTINGS.MAX_WALK_TIME)- shortest_time_from_H_to_B) ;
+		
+		if(lhs_EU > RUNSETTINGS.PERCENTAGE_MAX_SPEED*shortest_time_from_H_to_B){
+			CheckTripMergeable.LOGGER.info("Euclidean Rejected ");
+			return false;
+		}*/
+		
+		////////////////////////////////////////////////////////////////////////////////////////////////
 
 		String driving_time_to_dest_A_str = dtMap.get(OSM_dest_A.linearID.trim());
 		float driving_time_to_dest_A = Float.parseFloat(driving_time_to_dest_A_str);
@@ -77,6 +97,9 @@ public class ShareabilityGraph {
 		float travel_time_correction_ratio_A = travel_time_to_A_from_trip / driving_time_to_dest_A;
 		float travel_time_correction_ratio_B = travel_time_to_B_from_trip / driving_time_to_dest_B;
 		float travel_time_correction_ratio = (travel_time_correction_ratio_A + travel_time_correction_ratio_B) / 2;
+		
+		travel_time_correction_ratio =(float) (travel_time_correction_ratio*RUNSETTINGS.PERCENTAGE_MAX_SPEED);
+		//travel_time_correction_ratio = (float) (1/RUNSETTINGS.PERCENTAGE_MAX_SPEED);
 
 		// Update the driving times to destinations
 		driving_time_to_dest_A = driving_time_to_dest_A * travel_time_correction_ratio;
@@ -116,7 +139,7 @@ public class ShareabilityGraph {
 
 			float lhs = driving_time_to_dropoff + walking_time_to_dest_A - driving_time_to_dest_A;
 
-			float max_delay_trip_A = (float) ((driving_time_to_dest_A) * PERCENTAGE_TRIP_DELAY); // 10%
+			float max_delay_trip_A = (float) ((driving_time_to_dest_A) * RUNSETTINGS.PERCENTAGE_TRIP_DELAY); // 10%
 																									// of
 																									// SP
 			if (lhs <= max_delay_trip_A) {
@@ -130,7 +153,7 @@ public class ShareabilityGraph {
 		// Fetch possible drop-off points for trip A
 		
 
-		float max_delay_trip_B = (float) (driving_time_to_dest_B * PERCENTAGE_TRIP_DELAY);
+		float max_delay_trip_B = (float) (driving_time_to_dest_B * RUNSETTINGS.PERCENTAGE_TRIP_DELAY);
 		
 		Iterator<Pair<String, String>> d_B_itr = dropOffPoints_B.iterator();
 		// CheckTripMergeable.LOGGER.info("No of dropoff point for trip B =
@@ -165,7 +188,7 @@ public class ShareabilityGraph {
 						* travel_time_correction_ratio;
 				
 				//If the walking time between any pair of nodes is higher than the driving time between the same pair
-/*				float walking_time_between_dA_dB = (float) (FilterFns.distFrom(drop_A.getLat(),
+				float walking_time_between_dA_dB = (float) (FilterFns.distFrom(drop_A.getLat(),
 						drop_A.getLon(),drop_B.getLat(), drop_B.getLon())/0.05); //(dist/speed 3mph = 0.05 mpm)
 				
 				if(walking_time_between_dA_dB > driving_time_from_dropoff_B_to_dropoff_A){
@@ -180,7 +203,7 @@ public class ShareabilityGraph {
 						+ drop_B.getId() + " ( Destination - " + OSM_dest_B.linearID + " )");
 						return true;
 					}
-				}*/
+				}
 
 				float lhs = driving_time_to_dest_A+driving_time_from_dropoff_B_to_dropoff_A
 						+ walking_time_to_dest_B - driving_time_to_dest_B;
@@ -206,7 +229,7 @@ public class ShareabilityGraph {
 		//merge_trips_writer.println("=============================================  \n");
 		Iterator<TaxiTrip> t = max_match_graph.iterator();
 
-		List<Pair<TaxiTrip,TaxiTrip>> unique_set = new ArrayList <Pair<TaxiTrip,TaxiTrip>>();
+		unique_set = new ArrayList <Pair<TaxiTrip,TaxiTrip>>();
 		while(t.hasNext()){
 			TaxiTrip elt = t.next();
 			Set<TaxiTrip> eges = max_match_graph.edgesFrom(elt);
@@ -225,6 +248,9 @@ public class ShareabilityGraph {
 		}*/
 		return unique_set.size();
 
+	}
+	public List<Pair<TaxiTrip,TaxiTrip>> getUniqueSet(){
+		return this.unique_set;
 	}
 
 	public void constructShareabilityGraph(List<Pair<TaxiTrip, TaxiTrip>> mergeable_pair_list) {
@@ -272,24 +298,9 @@ public class ShareabilityGraph {
 		}
 
 	}
-
-	public boolean euclideanCheckSucess(TaxiTrip trip_A, TaxiTrip trip_B) {
+/*
+	public boolean euclideanCheckSucess(TaxiTrip trip_A, TaxiTrip trip_B, TripLoader tripLoader) {
 		// TODO Auto-generated method stub
-		//Calculate by Distance/speed method(60mph) travel time in mins. So 60 cancels.
-		
-		float walking_time_max = 5;
-		float time_from_H_to_A = (float) (FilterFns.inLaGDist(trip_A.getDropOffLat(), trip_A.getDropOffLon()));
-		float time_from_A_to_B = (float) (FilterFns.distFrom(trip_A.getDropOffLat(),
-				trip_A.getDropOffLon(),trip_B.getDropOffLat(), trip_B.getDropOffLon()));
-		float shortest_time_from_H_to_B = (float) (FilterFns.inLaGDist(trip_B.getDropOffLat(), trip_B.getDropOffLon()));
-		
-		float max_delay_for_B = (float) (0.10*shortest_time_from_H_to_B);
-		float lhs = time_from_H_to_A + time_from_A_to_B -(2*walking_time_max)- shortest_time_from_H_to_B ;
-		
-		if(lhs <= max_delay_for_B){
-			return true;
-		}
-		//CheckTripMergeable.LOGGER.info("Euclidean Rejected "+trip_A+"and "+trip_B);
-		return false;
-	}
+		return true;
+	}*/
 }
