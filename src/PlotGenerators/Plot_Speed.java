@@ -25,36 +25,31 @@ import org.joda.time.LocalDateTime;
 import Graph.Pair;
 import Graph.ShareabilityGraph;
 import Trip.Constants;
-import Trip.FilterFns;
 import Trip.TaxiTrip;
 import Trip.TripLoader;
 
-public class Plot2 {
-	public static final Logger LOGGER = Logger.getLogger(Plot2.class.getName());
+public class Plot_Speed {
+	public static final Logger LOGGER = Logger.getLogger(Plot_Speed.class.getName());
 
 	public static void main (String[] args0) throws IOException, ClassNotFoundException{
 
-		PrintStream out = new PrintStream(new FileOutputStream("output_PLOT2_0minwalk_v1.csv"));
+		PrintStream out = new PrintStream(new FileOutputStream("output_PLOTSPEED_50per.csv"));
 		System.setOut(out);
 		
-		PrintWriter merge_trips_writer = new PrintWriter(new FileWriter ("Plot_2_0min_v1.txt"));
-		PrintWriter merge_trips_coll= new PrintWriter(new FileWriter ("Plot_2_coll0min_v1.txt"));
+		PrintWriter merge_trips_writer = new PrintWriter(new FileWriter ("Plot_PLOTSPEED_50per.txt"));
+		PrintWriter merge_trips_coll= new PrintWriter(new FileWriter ("Plot_2_PLOTSPEED_50per.txt"));
 
 		// Read Trip between 2013-01-01 08:50:00 and 2013-01-01 08:55:00
 		DateTime startTime = Constants.dt_formatter.parseDateTime("2013-01-01 10:00:00");
-		DateTime endTime = Constants.dt_formatter.parseDateTime("2013-01-31 10:05:00");
+		DateTime endTime = Constants.dt_formatter.parseDateTime("2013-02-01 10:05:00");
 		TripLoader tripLoader = new TripLoader();
 		StringBuilder merge_writer_str = new StringBuilder();
 		while(startTime.compareTo(endTime)<0){
-			if(!FilterFns.isWeekday(startTime)){
-				startTime = startTime.plusDays(1);
-				continue;
-			}
 			merge_writer_str = new StringBuilder();
 			DateTime duration = startTime.plusMinutes(5);
 			List<TaxiTrip>  trips = tripLoader.loadTrips(startTime,duration,0.90);
-			Plot2.LOGGER.info("Total No of trips in the pool = "+trips.size());
-			Plot2.LOGGER.info("DATE = "+startTime.toString("yyyy-MM-dd HH:mm:ss"));
+			Plot_Speed.LOGGER.info("Total No of trips in the pool = "+trips.size());
+			Plot_Speed.LOGGER.info("DATE = "+startTime.toString("yyyy-MM-dd HH:mm:ss"));
 			//merge_writer_str.append(startTime.toString("yyyy-MM-dd")+", ");
 			merge_writer_str.append(trips.size()+", ");
 			//merge_trips_writer.println("Precomputed files loading completed at "+ LocalDateTime.now() );

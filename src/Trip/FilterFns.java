@@ -22,6 +22,15 @@ public class FilterFns {
 
 		return true;
 	}
+	public static boolean isWeekday(DateTime dateTime)
+	{
+		int dayOfWeek = dateTime.getDayOfWeek();
+
+		if(dayOfWeek>5)
+			return false;
+
+		return true;
+	}
 
 	public static Duration CalculateTripDuration(String pickup_datetime,
 			String dropoff_datetime) {

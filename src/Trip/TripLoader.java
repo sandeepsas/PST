@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -140,5 +141,62 @@ public class TripLoader {
 		node.setLon(node_pos.getR());
 		return node;
 	}
+	public List<TaxiTrip> loadTrips(DateTime startTime, DateTime endTime, double frac) throws IOException {
+		// TODO Auto-generated method stub
+		List<TaxiTrip> trips = new ArrayList<TaxiTrip>();
+		int total_no_passengers = 0;
+		BufferedReader bf = new BufferedReader(new 
+				FileReader("ObjectWarehouse/TripData/TripDataID.csv"));
+		String s = new String();
+		s = bf.readLine();
+		while((s=bf.readLine())!=null &&
+				(s.length()!=0) ){
+			String[] split_readline = s.split(",");
+			DateTime trip_start_time =  Constants.dt_formatter.parseDateTime(split_readline[6]);
 
+			TaxiTrip trip = new TaxiTrip();
+
+			if(trip_start_time.compareTo(startTime)>0 &&
+					trip_start_time.compareTo(endTime)<=0 	){
+				int paasenger_count = Integer.parseInt(split_readline[8]);
+				if(paasenger_count<4){
+					total_no_passengers+=paasenger_count;
+					trip = new TaxiTrip(split_readline[0],
+							split_readline[6],
+							split_readline[7],
+							split_readline[8],
+							split_readline[9],
+							split_readline[10],
+							split_readline[11],
+							split_readline[12],
+							split_readline[13],
+							split_readline[14]);
+					trips.add(trip);
+				}
+			}
+			if(trip_start_time.compareTo(endTime)>0){
+				break;
+			}
+
+		}
+		//Extract 90% of the passengers
+		Collections.shuffle(trips);
+		int ctr_90 = 0;
+		Iterator<TaxiTrip> trip_list_itr = trips.iterator();
+		List<TaxiTrip> trips_90 = new ArrayList<TaxiTrip>();
+		while(trip_list_itr.hasNext()){
+			TaxiTrip next_trip = trip_list_itr.next();
+			ctr_90 += next_trip.getPassengerCount();
+			if(ctr_90<=Math.round(frac*total_no_passengers)){
+				KdTree.XYZPoint dest_A = new KdTree.XYZPoint(next_trip.getMedallion(), 
+						next_trip.getDropOffLat(), next_trip.getDropOffLon(), 0);
+				GraphNode OSM_dest_A = this.getNNNode(dest_A).toGraphNode();
+				next_trip.setDestNode(OSM_dest_A);
+				trips_90.add(next_trip);
+			}
+		}
+		bf.close();
+		return trips_90;
+
+	}
 }

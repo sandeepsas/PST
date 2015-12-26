@@ -13,7 +13,7 @@ import Graph.GraphNode;
 public class IntersectionMapGenerator {
 	public static void main(String[] args0) throws FileNotFoundException, IOException, ClassNotFoundException{
 
-		PrintWriter DropOffPoints = new PrintWriter("ObjectWarehouse/WalkableIntersectionMap/IntrMap_10min.csv");
+		PrintWriter DropOffPoints = new PrintWriter("ObjectWarehouse/WalkableIntersectionMap/IntrMap_0min.csv");
 
 		System.out.println("De-Serialization started at"+ LocalDateTime.now() );
 
@@ -44,7 +44,7 @@ public class IntersectionMapGenerator {
 
 			GraphNode vertex = vertex_itr.next();
 			ClosestFirstIterator<GraphNode, DefaultWeightedEdge> bfs= new 
-					ClosestFirstIterator<GraphNode, DefaultWeightedEdge>(gr_t,vertex,10);
+					ClosestFirstIterator<GraphNode, DefaultWeightedEdge>(gr_t,vertex,0);
 
 			GraphNode startNode = bfs.next();
 			tt.append(startNode.getId()+"->"+bfs.getShortestPathLength(startNode)+", ");

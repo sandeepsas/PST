@@ -8,9 +8,12 @@
 package PlotGenerators;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.io.PrintWriter;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -19,9 +22,11 @@ import java.util.logging.Logger;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDateTime;
 
+import Graph.GraphNode;
 import Graph.Pair;
 import Graph.ShareabilityGraph;
 import Trip.Constants;
+import Trip.KdTree;
 import Trip.TaxiTrip;
 import Trip.TripLoader;
 
@@ -30,19 +35,21 @@ public class Plot1 {
 
 	public static void main (String[] args0) throws IOException, ClassNotFoundException{
 
-		PrintWriter merge_trips_writer = new PrintWriter(new File ("Plot1_v2_v2.txt"));
-		PrintWriter COL_writer = new PrintWriter(new File ("Plot1_Collector_v1_v2.txt"));
+		PrintStream out = new PrintStream(new FileOutputStream("output_PLOT1.csv"));
+		System.setOut(out);
+		PrintWriter merge_trips_writer = new PrintWriter(new File ("Plot1_NEW.txt"));
+		PrintWriter COL_writer = new PrintWriter(new File ("Plot1_Collector_NEW.txt"));
 		merge_trips_writer.println("\n \n  Run started at"+ LocalDateTime.now() );
 		merge_trips_writer.println("\n \n********** TRIPS MERGEABLE ********** ");
 		merge_trips_writer.println("************************************* \n");
 
-		DateTime startTime = Constants.dt_formatter.parseDateTime("2013-01-17 10:00:00");
-		DateTime endTime = Constants.dt_formatter.parseDateTime("2013-11-05 10:05:00");
+		DateTime startTime = Constants.dt_formatter.parseDateTime("2013-01-01 10:00:00");
+		DateTime endTime = Constants.dt_formatter.parseDateTime("2013-02-01 10:05:00");
 		TripLoader tripLoader = new TripLoader();
 
 		while(startTime.compareTo(endTime)<0){
 			DateTime duration = startTime.plusMinutes(5);
-			List<Pair<Integer,List<TaxiTrip>>>    trip_list = loadTripsSet(startTime,duration);
+			List<Pair<Integer,List<TaxiTrip>>>    trip_list = loadTripsSet(startTime,duration, tripLoader);
 			// Read Trip between 2013-01-01 08:50:00 and 2013-01-01 08:55:00
 			if(trip_list.isEmpty())
 				continue;
@@ -65,30 +72,14 @@ public class Plot1 {
 						TaxiTrip trip_A = trips.get(i);
 						TaxiTrip trip_B = trips.get(j);
 						if(trip_A.getPassengerCount()+trip_B.getPassengerCount()<=4){
-							//dispatchList.add(new Pair<TaxiTrip, TaxiTrip>(trip_A,trip_B));
 							Plot1.LOGGER.info("Processing "+trip_A+"and "+trip_B);  
-
-							//if(sG.euclideanCheckSucess(trip_A,trip_B,tripLoader)) {
 								if(sG.checkMergeable(trip_A,trip_B,tripLoader,merge_trips_writer)){
 									mergeable_trips.add(new Pair<TaxiTrip,TaxiTrip>(trip_A,trip_B));
 								}
-							//}
 						}
 					}
 				}
-				/*			ShareabilityGraph sG = new ShareabilityGraph();
-			List<Pair<TaxiTrip,TaxiTrip>> mergeable_trips = new ArrayList<Pair<TaxiTrip,TaxiTrip>>();
 
-			for(int j = 0 ; j < dispatchList.size(); j ++){
-				TaxiTrip trip_A = dispatchList.get(j).getL();
-				TaxiTrip trip_B = dispatchList.get(j).getR();
-				Plot1.LOGGER.info("Processing "+trip_A+"and "+trip_B);  
-				if(sG.euclideanCheckSucess(trip_A,trip_B)) {
-					if(sG.checkMergeable(trip_A,trip_B,tripLoader,merge_trips_writer)){
-						mergeable_trips.add(new Pair<TaxiTrip,TaxiTrip>(trip_A,trip_B));
-					}
-				}
-			}*/
 				Plot1.LOGGER.info("Summary Printing Started");  
 				//Print Results
 				merge_trips_writer.println("\n************************************* ");
@@ -115,14 +106,14 @@ public class Plot1 {
 				merge_trips_writer.println("************************************* ");
 				int matches =  sG.findMaxMatch(merge_trips_writer);
 				merge_trips_writer.println("************************************* ");
-				//sG.useJgraphBlossom(mergeable_trips,merge_trips_writer);
 				merge_trips_writer.println("Run ended at"+ LocalDateTime.now() );
 				int reduced_trips = trips.size() - matches;
-				COL_writer.println("Date = "+startTime.toString("yyyy-MM-dd HH:mm:ss")+", "
-						+"#TRIPS =  "+trips.size()+", "
-						+"%PERCENT = "+trips_pair.getL()+", "
-						+"Matches = "+matches+", "
-						+ "TRIPS REDUCED = "+reduced_trips);
+
+				COL_writer.println(startTime.toString("yyyy-MM-dd HH:mm:ss")+", "
+						+trips.size()+", "
+						+trips_pair.getL()+", "
+						+matches+", "
+						+reduced_trips);
 				
 			}
 			startTime = startTime.plusDays(1);
@@ -133,10 +124,10 @@ public class Plot1 {
 	}
 
 
-	public static List<Pair<Integer,List<TaxiTrip>>>  loadTripsSet(DateTime startTime, DateTime endTime) throws IOException {
+	public static List<Pair<Integer,List<TaxiTrip>>>  loadTripsSet(DateTime startTime, DateTime endTime, TripLoader tripLoader) throws IOException {
 		// TODO Auto-generated method stub
 		List<TaxiTrip> trips = new ArrayList<TaxiTrip>();
-		BufferedReader bf = new BufferedReader(new FileReader("TripData/TripDataID.csv"));
+		BufferedReader bf = new BufferedReader(new FileReader("ObjectWarehouse/TripData/TripDataID.csv"));
 		String s = new String();
 		s = bf.readLine();
 		int total_no_passengers = 0;
@@ -162,7 +153,7 @@ public class Plot1 {
 						split_readline[14]);
 
 				int paasenger_count = trip.getPassengerCount();
-				if(paasenger_count<=4){
+				if(paasenger_count<4){
 					total_no_passengers+=paasenger_count;
 					trips.add(trip);
 				}
@@ -182,6 +173,10 @@ public class Plot1 {
 
 		while(trip_list_itr.hasNext()){
 			TaxiTrip next_trip = trip_list_itr.next();
+			KdTree.XYZPoint dest_A = new KdTree.XYZPoint(next_trip.getMedallion(), 
+					next_trip.getDropOffLat(), next_trip.getDropOffLon(), 0);
+			GraphNode OSM_dest_A = tripLoader.getNNNode(dest_A).toGraphNode();
+			next_trip.setDestNode(OSM_dest_A);
 			ctr_90 += next_trip.getPassengerCount();
 			if(ctr_90<=Math.round(0.90*total_no_passengers)){
 				trips_90.add(next_trip);
@@ -206,7 +201,7 @@ public class Plot1 {
 		percent_wise_list.add(new Pair<Integer, List<TaxiTrip>>(70,trips_70));
 		percent_wise_list.add(new Pair<Integer, List<TaxiTrip>>(50,trips_50));
 		percent_wise_list.add(new Pair<Integer, List<TaxiTrip>>(30,trips_30));
-		//percent_wise_list.add(new Pair<Integer, List<TaxiTrip>>(20,trips_20));
+		percent_wise_list.add(new Pair<Integer, List<TaxiTrip>>(20,trips_20));
 		percent_wise_list.add(new Pair<Integer, List<TaxiTrip>>(10,trips_10));
 		return percent_wise_list;
 

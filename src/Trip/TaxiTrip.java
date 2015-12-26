@@ -1,11 +1,17 @@
 package Trip;
 
+import java.io.Serializable;
+
 import org.joda.time.Duration;
 
 import Graph.GraphNode;
 
-public class TaxiTrip {
+public class TaxiTrip implements Serializable{
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -5520944410371242318L;
 	String medallion;
 	String pickup_datetime;
 	String dropoff_datetime;
@@ -16,6 +22,7 @@ public class TaxiTrip {
 	String pickup_latitude;
 	String dropoff_longitude;
 	String dropoff_latitude;
+	GraphNode dest;
 
 	public TaxiTrip(String medallion,
 			String pickup_datetime,
@@ -38,7 +45,15 @@ public class TaxiTrip {
 		this.pickup_latitude = pickup_latitude;
 		this.dropoff_longitude = dropoff_longitude;
 		this.dropoff_latitude = dropoff_latitude;
+		this.dest = new GraphNode();
 
+	}
+	public void setDestNode(GraphNode destNode){
+		this.dest = destNode;
+	}
+	
+	public GraphNode getDestNode(){
+		return this.dest;
 	}
 	
 	public double getDropOffLat(){
@@ -49,6 +64,9 @@ public class TaxiTrip {
 	}
 	public int getPassengerCount(){
 		return Integer.parseInt(this.passenger_count);
+	}
+	public String getPickupDate(){
+		return this.pickup_datetime;
 	}
 
 	public TaxiTrip() {

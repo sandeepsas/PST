@@ -13,7 +13,7 @@ import Graph.GraphNode;
 public class VertexMapGenerator {
 	public static void main(String[] args0) throws FileNotFoundException, IOException, ClassNotFoundException{
 
-		PrintWriter verTexMap = new PrintWriter("ObjectWarehouse/IntersectionVertexMap/VertexMap_10min.csv");
+		PrintWriter verTexMap = new PrintWriter("ObjectWarehouse/IntersectionVertexMap/VertexMap_0min.csv");
 
 		System.out.println("De-Serialization started at"+ LocalDateTime.now() );
 
@@ -44,7 +44,7 @@ public class VertexMapGenerator {
 
 			GraphNode vertex = vertex_itr.next();
 			ClosestFirstIterator<GraphNode, DefaultWeightedEdge> bfs= new 
-					ClosestFirstIterator<GraphNode, DefaultWeightedEdge>(gr_t,vertex,10);
+					ClosestFirstIterator<GraphNode, DefaultWeightedEdge>(gr_t,vertex,0);
 			while(bfs.hasNext()){
 				GraphNode bfs_next_node = bfs.next();
 				if(nodeIsIntersection(bfs_next_node,listIntersections)){
