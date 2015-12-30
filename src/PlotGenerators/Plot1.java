@@ -8,13 +8,16 @@
 package PlotGenerators;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Logger;
@@ -35,34 +38,43 @@ public class Plot1 {
 
 	public static void main (String[] args0) throws IOException, ClassNotFoundException{
 
-		PrintStream out = new PrintStream(new FileOutputStream("output_PLOT1.csv"));
+		PrintStream out = new PrintStream(new FileOutputStream("out_NONMANHATTAN_PLOT1_v1.csv"));
 		System.setOut(out);
-		PrintWriter merge_trips_writer = new PrintWriter(new File ("Plot1_NEW.txt"));
-		PrintWriter COL_writer = new PrintWriter(new File ("Plot1_Collector_NEW.txt"));
-		merge_trips_writer.println("\n \n  Run started at"+ LocalDateTime.now() );
-		merge_trips_writer.println("\n \n********** TRIPS MERGEABLE ********** ");
-		merge_trips_writer.println("************************************* \n");
+		PrintWriter merge_trips_writer = new PrintWriter(new File ("Plot1_NONMANHATTAN.txt"));
+		PrintWriter COL_writer = new PrintWriter(new File ("Plot1_Collector_NONMANHATTAN.txt"));
 
-		DateTime startTime = Constants.dt_formatter.parseDateTime("2013-01-01 10:00:00");
-		DateTime endTime = Constants.dt_formatter.parseDateTime("2013-02-01 10:05:00");
+		//DateTime startTime = Constants.dt_formatter.parseDateTime("2013-01-01 10:00:00");
+		//DateTime endTime = Constants.dt_formatter.parseDateTime("2013-05-01 10:05:00");
 		TripLoader tripLoader = new TripLoader();
+		
+		ObjectInputStream ios_graph_read = new ObjectInputStream(new FileInputStream("ObjectWarehouse/TripData/DateSet_6min.obj"));
+		List<Pair<DateTime,DateTime>> dates_100 = new ArrayList<Pair<DateTime,DateTime>>();
+		dates_100 =   (List<Pair<DateTime, DateTime>>) ios_graph_read.readObject();
+		Collections.shuffle(dates_100);
+		
+		int sample_counter = 0;
 
-		while(startTime.compareTo(endTime)<0){
+		for(Pair<DateTime, DateTime> date_pair:dates_100){
+			DateTime startTime = date_pair.getL();
+			DateTime endTime = date_pair.getR();
+
 			DateTime duration = startTime.plusMinutes(5);
 			List<Pair<Integer,List<TaxiTrip>>>    trip_list = loadTripsSet(startTime,duration, tripLoader);
 			// Read Trip between 2013-01-01 08:50:00 and 2013-01-01 08:55:00
 			if(trip_list.isEmpty())
 				continue;
+			
+			if(sample_counter>100)
+				break;
 
+			sample_counter++;
 			Plot1.LOGGER.info("Total No of trip Pairs = "+trip_list.size());
-			Plot1.LOGGER.info("\n Processing date = "+startTime.toString("yyyy-MM-dd HH:mm:ss"));
+			Plot1.LOGGER.info("COUNTER = "+sample_counter);
 			
 			merge_trips_writer.println("Precomputed files loading completed at "+ LocalDateTime.now() );
 
 			for (Pair<Integer,List<TaxiTrip>> trips_pair:trip_list){
-				Plot1.LOGGER.info("Processing % = "+trips_pair.getL());
 				List<TaxiTrip> trips = trips_pair.getR();
-				Plot1.LOGGER.info("# TRIPS = "+trips.size());
 				// Generate possible trip combos and populate merge-able trips
 				//List<Pair<TaxiTrip,TaxiTrip>>  dispatchList = new ArrayList<Pair<TaxiTrip,TaxiTrip>>();
 				ShareabilityGraph sG = new ShareabilityGraph();
@@ -80,20 +92,6 @@ public class Plot1 {
 					}
 				}
 
-				Plot1.LOGGER.info("Summary Printing Started");  
-				//Print Results
-				merge_trips_writer.println("\n************************************* ");
-				merge_trips_writer.println("************* TRIP SUMMARY ********** ");
-				//merge_trips_writer.println("************************************* \n");
-				//merge_trips_writer.println("************* Time Interval ********* ");
-				merge_trips_writer.println("************************************* ");
-				merge_trips_writer.println(startTime.toString("yyyy-MM-dd HH:mm:ss")+" and "+ duration.toString("yyyy-MM-dd HH:mm:ss"));
-				merge_trips_writer.println("************************************* ");
-				merge_trips_writer.println("Total Number of Trips = "+trips.size());
-				merge_trips_writer.println("************************************* ");
-				merge_trips_writer.println("\n ************************************* ");
-				merge_trips_writer.println("Number of Mergeable Pairs = "+mergeable_trips.size());
-				merge_trips_writer.println("************************************* ");
 				Iterator <Pair<TaxiTrip,TaxiTrip>> merge_list_itr = mergeable_trips.iterator();
 				/*			while(merge_list_itr.hasNext()){
 				Pair<TaxiTrip,TaxiTrip> merge_pair = merge_list_itr.next();
@@ -101,15 +99,11 @@ public class Plot1 {
 			}*/
 				/*Construct Shareability Graph*/
 				sG.constructShareabilityGraph(mergeable_trips);
-				merge_trips_writer.println("\n ************************************* ");
-				merge_trips_writer.println(" MAXIMUM MATCH PAIRS");
-				merge_trips_writer.println("************************************* ");
 				int matches =  sG.findMaxMatch(merge_trips_writer);
-				merge_trips_writer.println("************************************* ");
 				merge_trips_writer.println("Run ended at"+ LocalDateTime.now() );
 				int reduced_trips = trips.size() - matches;
 
-				COL_writer.println(startTime.toString("yyyy-MM-dd HH:mm:ss")+", "
+				System.out.println(startTime.toString("yyyy-MM-dd HH:mm:ss")+", "
 						+trips.size()+", "
 						+trips_pair.getL()+", "
 						+matches+", "
@@ -121,13 +115,16 @@ public class Plot1 {
 
 		merge_trips_writer.close();
 		COL_writer.close();
+		out.close();
 	}
 
 
+	
+	
 	public static List<Pair<Integer,List<TaxiTrip>>>  loadTripsSet(DateTime startTime, DateTime endTime, TripLoader tripLoader) throws IOException {
 		// TODO Auto-generated method stub
 		List<TaxiTrip> trips = new ArrayList<TaxiTrip>();
-		BufferedReader bf = new BufferedReader(new FileReader("ObjectWarehouse/TripData/TripDataID.csv"));
+		BufferedReader bf = new BufferedReader(new FileReader("ObjectWarehouse/TripData/Manhattan/NonManhattanTripsID.csv"));
 		String s = new String();
 		s = bf.readLine();
 		int total_no_passengers = 0;

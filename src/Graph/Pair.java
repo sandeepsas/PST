@@ -1,10 +1,15 @@
 package Graph;
 
+import java.io.Serializable;
 import java.util.Objects;
 
 
-public class Pair<L,R> {
-    private L l;
+public class Pair<L,R> implements Serializable{
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 2088625713495844100L;
+	private L l;
     private R r;
     public Pair(L l, R r){
         this.l = l;

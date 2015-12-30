@@ -24,7 +24,7 @@ public class Plot100_2 {
 	public static final Logger LOGGER = Logger.getLogger(Plot2.class.getName());
 
 	public static void main (String[] args0) throws IOException, ClassNotFoundException{
-		PrintStream out = new PrintStream(new FileOutputStream("out_P100_p2.csv"));
+		PrintStream out = new PrintStream(new FileOutputStream("out_P100_p2_3minWalk.csv"));
 		System.setOut(out);
 		LOGGER.info("Run started at "+ LocalDateTime.now() );
 		ObjectInputStream ios_graph_read = new 

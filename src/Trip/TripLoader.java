@@ -145,6 +145,8 @@ public class TripLoader {
 		// TODO Auto-generated method stub
 		List<TaxiTrip> trips = new ArrayList<TaxiTrip>();
 		int total_no_passengers = 0;
+		/*BufferedReader bf = new BufferedReader(new 
+				FileReader("ObjectWarehouse/TripData/Manhattan/NonManhattanTrips.csv"));*/
 		BufferedReader bf = new BufferedReader(new 
 				FileReader("ObjectWarehouse/TripData/TripDataID.csv"));
 		String s = new String();

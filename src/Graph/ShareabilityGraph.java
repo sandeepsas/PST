@@ -26,9 +26,9 @@ import Trip.TripLoader;
 public class ShareabilityGraph {
 	List<DefaultWeightedEdge> shareable_graph_edges;
 	List<Pair<TaxiTrip,TaxiTrip>> unique_set;
-	
+
 	MUndirectedGraph uNshareGraph;
-	
+
 	public ShareabilityGraph() {
 		shareable_graph_edges = new ArrayList<DefaultWeightedEdge>();
 		new ArrayList <Pair<TaxiTrip,TaxiTrip>>();
@@ -37,13 +37,13 @@ public class ShareabilityGraph {
 
 	public boolean checkMergeable(TaxiTrip trip_A, TaxiTrip trip_B, TripLoader tripLoader,
 			PrintWriter merge_trips_writer) throws ClassNotFoundException, IOException {
-		
-		
+
+
 		// Load the maps
 		Map<String, List<Pair<String, String>>> intrMap = tripLoader.getIntrMap();
 		Map<String, String> dtMap = tripLoader.getDTMap();
 		DefaultDirectedWeightedGraph<GraphNode, DefaultWeightedEdge> gr_t = tripLoader.getGraph();
-		
+
 		GraphNode OSM_dest_A = trip_A.getDestNode();
 		GraphNode OSM_dest_B = trip_B.getDestNode();
 
@@ -68,20 +68,28 @@ public class ShareabilityGraph {
 
 
 		//*****************************EUCLIDEAN TEST *************************************************
+		//Check if DT<WT
 		// TODO Auto-generated method stub
 		//Calculate by Distance/speed method(60mph) travel time in mins. So 60 cancels.
 		float time_from_H_to_A = (float) (travel_time_correction_ratio*FilterFns.inLaGDist(trip_A.getDropOffLat(), trip_A.getDropOffLon()));
 		float time_from_A_to_B = (float) (travel_time_correction_ratio*FilterFns.distFrom(trip_A.getDropOffLat(),
 				trip_A.getDropOffLon(),trip_B.getDropOffLat(), trip_B.getDropOffLon()));
 		float shortest_time_from_H_to_B = Float.parseFloat(dtMap.get(""+OSM_dest_B.getId()));
-		float lhs_EU = (float) (time_from_H_to_A + time_from_A_to_B -(2*RUNSETTINGS.MAX_WALK_TIME)- shortest_time_from_H_to_B) ;
-		if(lhs_EU > RUNSETTINGS.PERCENTAGE_TRIP_DELAY*shortest_time_from_H_to_B){
+		
+		float shortest_time_from_H_to_A = Float.parseFloat(dtMap.get(""+OSM_dest_A.getId()));
+		
+		float lhs_EU_TH3 = (float) (shortest_time_from_H_to_A + time_from_A_to_B -(2*RUNSETTINGS.MAX_WALK_TIME)- shortest_time_from_H_to_B) ;
+
+
+
+		float lhs_EU_TH = (float) (time_from_H_to_A + time_from_A_to_B -(2*RUNSETTINGS.MAX_WALK_TIME)- shortest_time_from_H_to_B) ;
+		if(lhs_EU_TH3 > RUNSETTINGS.PERCENTAGE_TRIP_DELAY*shortest_time_from_H_to_B){
 			//CheckTripMergeable.LOGGER.info("Euclidean Rejected ");
 			//System.out.println("Outer Euclidean Rejected ");
 			return false;
 		}
 		//*****************************EUCLIDEAN TEST *************************************************
-		
+
 		DijkstraShortestPath<GraphNode, DefaultWeightedEdge> dsp_dest = new DijkstraShortestPath<GraphNode, DefaultWeightedEdge>(
 				gr_t, OSM_dest_A, OSM_dest_B);
 		float driving_time_A_B = (float) dsp_dest.getPathLength();
@@ -91,7 +99,7 @@ public class ShareabilityGraph {
 			//System.out.println("Step 1 Rejection");
 			return true;
 		}
-		
+
 		// Drop-off points compuatations
 		List<Pair<String, String>> dropOffPoints_A = intrMap.get(""+OSM_dest_A.getId());
 		List<Pair<String, String>> dropOffPoints_B = intrMap.get(""+OSM_dest_B.getId());
@@ -115,7 +123,7 @@ public class ShareabilityGraph {
 		// Constraints for Trip B
 
 		Iterator<Pair<String, String>> d_B_itr = dropOffPoints_B.iterator();
-		
+
 		while (d_B_itr.hasNext()) {
 			Pair<String, String> dropoff_B_pair = d_B_itr.next();
 			String walk_time = dropoff_B_pair.getR();

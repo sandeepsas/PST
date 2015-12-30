@@ -8,7 +8,6 @@ import java.io.ObjectInputStream;
 import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -20,29 +19,30 @@ import PlotGenerators.Plot2;
 import Trip.TaxiTrip;
 import Trip.TripLoader;
 
-public class Plot100_2_v1 {
-	public static final Logger LOGGER = Logger.getLogger(Plot2.class.getName());
+public class PoolLengthPlotter {
+	public static final Logger LOGGER = Logger.getLogger(PoolLengthPlotter.class.getName());
 
 	public static void main (String[] args0) throws IOException, ClassNotFoundException{
-		PrintStream out = new PrintStream(new FileOutputStream("out_P100_P2_PoolLength5minWTDT_TEST_V1.csv"));
+		PrintStream out = new PrintStream(new FileOutputStream("out_P100_10minPoolSize_exe.csv"));
 		System.setOut(out);
 		LOGGER.info("Run started at "+ LocalDateTime.now() );
 		ObjectInputStream ios_graph_read = new 
 				ObjectInputStream(new 
-						FileInputStream("ObjectWarehouse/TripData/random10MinPools.obj"));
+						FileInputStream("ObjectWarehouse/TripData/Random100Pools.obj"));
 		List<List<TaxiTrip>> random_100_pools = new ArrayList<List<TaxiTrip>>();
 		random_100_pools =   (List<List<TaxiTrip>>) ios_graph_read.readObject();
 
 		/////////////     START MERGE TEST   /////////////////////
 		//Collections.shuffle(random_100_pools);
-		PrintWriter merge_trips_writer = new PrintWriter(new FileWriter ("Plot100_P2_PoolLength5min_V1.csv"));
+		PrintWriter merge_trips_writer = new PrintWriter(new FileWriter ("Plot100_10minPoolSize.csv"));
 		String print_date_time = new String();
 		TripLoader tripLoader = new TripLoader();
 		int ctrr = 0;
+		
 		for(List<TaxiTrip> trips:random_100_pools){
-			long XstartTime = System.nanoTime();
 			LOGGER.info("Trip set processing = "+ctrr);
 			ctrr++;
+			long XstartTime = System.nanoTime();
 			ShareabilityGraph sG = new ShareabilityGraph();
 			List<Pair<TaxiTrip,TaxiTrip>> mergeable_trips = new ArrayList<Pair<TaxiTrip,TaxiTrip>>();
 			for(int i = 0 ; i < trips.size(); i ++){
@@ -71,3 +71,4 @@ public class Plot100_2_v1 {
 		out.close();
 	}
 }
+
