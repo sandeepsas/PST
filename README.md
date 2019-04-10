@@ -1,3 +1,10 @@
+<!--
+  Title: Multimodal Ridesharing
+  Description: Slugging Multiple Dropoff (SLIM) algorithm for ride sharing
+  Author: ssasid3
+  Keywords: Slugging, Walking, Ridesharing, Ride sharing, algorithm, New york taxi cab data
+  -->
+  <meta name='keywords' content='PST, SLIM, Multimodal, Ridesharing'>
 # PST
 
 Slugging Multiple Dropoff (SLIM) algorithm for ride sharing
