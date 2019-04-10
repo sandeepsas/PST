@@ -4,7 +4,7 @@
   Author: ssasid3
   Keywords: Slugging, Walking, Ridesharing, Ride sharing, algorithm, New york taxi cab data
   -->
-  <meta name='keywords' content='PST, SLIM, Multimodal, Ridesharing'>
+  <meta name='keywords' content='PST, SLIM, Multimodal, Slugging, Walking, Ridesharing, Ride sharing, algorithm, New york taxi cab data, RSVP, Ridesharing via pools, queing, pooling, maximum matching, trip optimization, ride optimization, ieee, mdm, eucledian, pairwise shareability test, shareability graph, road network, manhattan, uber, lyft, uberpool, ridesharing services, walk, optimization algorithm '>
 # PST
 
 Slugging Multiple Dropoff (SLIM) algorithm for ride sharing
